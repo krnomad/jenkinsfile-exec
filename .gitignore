@@ -1,0 +1,11 @@
+.gradle/
+**/build/
+.local-jenkinsfile/
+.superpowers/
+.idea/
+*.iml
+__pycache__/
+*.pyc
+.DS_Store
+
+/examples/output/

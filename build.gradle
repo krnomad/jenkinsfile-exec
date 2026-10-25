@@ -1,0 +1,19 @@
+plugins { id 'base' }
+allprojects {
+    group = 'io.localjenkinsfile'
+    version = '0.1.0-SNAPSHOT'
+    repositories { mavenCentral() }
+}
+subprojects {
+    apply plugin: 'groovy'
+    apply plugin: 'java-library'
+    java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+    dependencies {
+        implementation 'org.apache.groovy:groovy:4.0.29'
+        implementation 'org.apache.groovy:groovy-json:4.0.29'
+        testImplementation platform('org.junit:junit-bom:5.12.2')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+    tasks.withType(Test).configureEach { useJUnitPlatform(); testLogging { events 'failed', 'skipped'; exceptionFormat = 'full' } }
+}

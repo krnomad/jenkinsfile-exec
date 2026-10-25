@@ -1,0 +1,43 @@
+name: verify
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew test :cli:installDist
+      - run: python3 scripts/smoke-cli.py
+      - run: python3 scripts/smoke-workspaces.py
+      - run: python3 scripts/smoke-shebang.py
+      - run: cli/build/install/jenkinsfile-exec/bin/jenkinsfile-exec check examples/Jenkinsfile
+      - run: cli/build/install/jenkinsfile-exec/bin/jenkinsfile-exec run examples/Jenkinsfile --workspace build/smoke
+  compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - uses: actions/cache@v4
+        with:
+          path: build/jenkins-cache
+          key: jenkins-${{ hashFiles('compatibility/jenkins.lock.json') }}
+      - run: ./gradlew :cli:installDist
+      - run: python3 scripts/compare-jenkins.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jenkins-comparison
+          path: build/jenkins-comparison-*/

@@ -1,0 +1,28 @@
+#!/usr/bin/env jenkinsfile-exec
+
+def targets = ['api', 'web']
+def checked = []
+pipeline {
+    agent any
+    environment { APP_ENV = 'development' }
+    stages {
+        stage('Inspect') {
+            steps {
+                script {
+                    for (def target in targets) {
+                        if (fileExists(target)) { checked << target }
+                    }
+                    echo "Existing targets: ${checked}"
+                }
+            }
+        }
+        stage('Shell') {
+            steps {
+                dir('output') {
+                    sh 'printf "environment=%s\n" "$APP_ENV" > environment.txt'
+                }
+            }
+        }
+    }
+    post { always { echo 'Finished' } }
+}
