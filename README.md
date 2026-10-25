@@ -11,6 +11,41 @@ Run a useful subset of Declarative Jenkins Pipeline locally, using real Groovy, 
 
 **Status: early implementation.** The compatibility claim is limited to tested constructs and pinned Jenkins fixtures. Local extensions are listed below. Arbitrary Jenkins plugins, CPS persistence and the entire Jenkins DSL are not supported.
 
+## Install with an AI agent
+
+Copy this prompt into a coding agent with terminal access, such as Codex or Claude Code:
+
+```text
+Install Jenkinsfile Exec for the current user on this macOS or Linux machine:
+https://github.com/krnomad/jenkinsfile-exec
+
+1. Read the repository README and applicable repository instructions. Detect the
+   OS and shell, then check Git, JDK 21 and Python 3. Reuse installed prerequisites
+   where possible; if anything is missing, install it through the environment's
+   normal package-manager and permission workflow. Use JDK 21 for the build and
+   runtime without changing the machine-wide Java default.
+2. Clone the repository into an unused user-owned directory, or reuse a matching
+   checkout while preserving local changes. Run ./gradlew test :cli:installDist
+   from the repository root.
+3. Install the complete cli/build/install/jenkinsfile-exec distribution, including
+   its lib directory, into ~/.local/share/jenkinsfile-exec. Inspect existing
+   installation paths first and preserve unrelated files. Expose its launcher
+   through a symlink at ~/.local/bin/jenkinsfile-exec.
+4. Add ~/.local/bin to PATH for the detected shell, including future terminal
+   sessions. Make startup-file changes idempotent and preserve existing settings.
+   Ensure the launcher can find JDK 21 in a new shell as well.
+5. In a new shell, verify command -v jenkinsfile-exec, jenkinsfile-exec --version,
+   and jenkinsfile-exec plugins list. Statically check the installed
+   examples/Executable.Jenkinsfile, then execute it directly through its shebang
+   with --workspace pointing to a disposable directory. Confirm exit code 0 and
+   a SUCCESS run report. This verification needs no AI model calls.
+6. Report the installed paths, PATH/Java setup and actual verification results.
+   Show how to run ./Jenkinsfile with #!/usr/bin/env jenkinsfile-exec and chmod +x.
+   If a step fails, report the failure instead of claiming installation succeeded.
+```
+
+This prompt installs from source using the Gradle wrapper. Internet access is needed to fetch source and build dependencies. The coding agent may have its own tool permissions. Codex CLI installation/authentication is only needed to run `codex` steps; keep it separate from core installation verification. The installation directory and launcher are local to your user account.
+
 ## Quick start
 
 Requires JDK 21+ (JDK 21 is the tested build baseline), macOS or Linux. Python 3 is required for the protocol tests and Jenkins comparison tool. An installed, authenticated Codex CLI is needed only for `codex` steps; tested with `0.163.0`.

@@ -11,6 +11,40 @@ Jenkins controller 없이 실제 Groovy 환경에서 Declarative Jenkins Pipelin
 
 **현재 상태: 초기 구현 단계입니다.** 호환성은 테스트한 문법과 고정된 Jenkins 비교 사례로 제한됩니다. 로컬 전용 확장 기능은 아래에 명시합니다. 임의의 Jenkins 플러그인, CPS 실행 상태 저장, Jenkins DSL 전체를 지원하지는 않습니다.
 
+## AI 에이전트에게 설치 맡기기
+
+터미널을 사용할 수 있는 Codex나 Claude Code 같은 코딩 에이전트에 다음 프롬프트를 그대로 붙여 넣으세요.
+
+```text
+이 macOS 또는 Linux 환경에서 현재 사용자용으로 Jenkinsfile Exec을 설치해줘.
+저장소: https://github.com/krnomad/jenkinsfile-exec
+
+1. 저장소 README와 적용되는 저장소 작업 지침을 읽고 OS와 shell을 확인해줘.
+   Git, JDK 21, Python 3가 있는지 확인하고 설치된 도구를 우선 사용해줘.
+   부족한 도구는 이 환경의 일반적인 패키지 관리자와 권한 처리 방식으로 설치해줘.
+   빌드와 실행에는 JDK 21을 사용하되 시스템 전체의 기본 Java는 바꾸지 마.
+2. 사용자가 소유한 비어 있는 경로에 저장소를 clone하거나, 같은 저장소의 기존
+   checkout을 로컬 변경을 보존하며 재사용해줘. 저장소 루트에서
+   ./gradlew test :cli:installDist 를 실행해줘.
+3. cli/build/install/jenkinsfile-exec 배포본 전체를 lib 디렉터리까지 포함해
+   ~/.local/share/jenkinsfile-exec 에 설치해줘. 기존 설치 경로를 먼저 확인하고
+   무관한 파일은 보존해줘. ~/.local/bin/jenkinsfile-exec 에 실행 파일을 가리키는
+   심볼릭 링크를 만들어줘.
+4. 현재 shell과 이후 새 터미널에서 ~/.local/bin 이 PATH에 포함되도록 설정해줘.
+   기존 shell 설정을 보존하고 설정 구문이 중복으로 추가되지 않게 해줘.
+   새 shell에서도 실행 파일이 JDK 21을 찾을 수 있게 해줘.
+5. 새 shell에서 command -v jenkinsfile-exec, jenkinsfile-exec --version,
+   jenkinsfile-exec plugins list 를 확인해줘. 설치된 examples/Executable.Jenkinsfile을
+   정적 검사한 뒤 shebang으로 직접 실행해줘. --workspace에는 임시 작업 디렉터리를
+   지정하고 종료 코드 0과 SUCCESS 실행 보고서를 확인해줘.
+   이 검증에서는 AI 모델을 호출할 필요가 없어.
+6. 설치 경로, PATH와 Java 설정, 실제 검증 결과를 알려줘.
+   #!/usr/bin/env jenkinsfile-exec 과 chmod +x 를 사용해 ./Jenkinsfile로 실행하는
+   방법도 보여줘. 실패한 단계가 있으면 성공했다고 하지 말고 해당 오류를 알려줘.
+```
+
+이 프롬프트는 Gradle wrapper를 사용해 소스에서 설치합니다. 소스와 빌드 의존성을 내려받으려면 인터넷 연결이 필요합니다. 사용하는 코딩 에이전트 자체의 도구 권한이 적용될 수 있습니다. Codex CLI 설치와 인증은 `codex` step을 실행할 때만 필요하므로 기본 설치 검증과는 별도로 진행하세요. 설치 디렉터리와 실행 명령은 현재 사용자 계정에만 적용합니다.
+
 ## 빠른 시작
 
 JDK 21 이상과 macOS 또는 Linux가 필요합니다. 빌드 기준으로 검증한 버전은 JDK 21입니다. 프로토콜 테스트와 Jenkins 비교 도구에는 Python 3가 필요합니다. `codex` step을 사용할 때만 설치 및 인증을 마친 Codex CLI가 필요하며, 검증한 버전은 `0.163.0`입니다.
